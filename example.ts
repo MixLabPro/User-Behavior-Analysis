@@ -65,6 +65,10 @@ function customConfigExample(): void {
         touchEvents: true,                 // 追踪触摸事件（移动设备）
         audioVideoInteraction: true,       // 追踪音视频交互
         
+        // 新增：自动发送事件配置
+        autoSendEvents: true,              // 启用自动发送
+        sendUrl: 'http://127.0.0.1:3000/get', // 后台接收URL
+        
         // 自定义数据处理函数
         processData: (results: any) => {
             console.log('📊 用户行为数据:', results);

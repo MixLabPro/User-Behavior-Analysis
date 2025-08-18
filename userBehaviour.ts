@@ -56,9 +56,9 @@ type WindowSize = [number, number, string];
 type VisibilityChange = [DocumentVisibilityState, string];
 
 /**
- * 键盘活动数据类型 [按键, 时间戳]
+ * 键盘活动数据类型 [按键, 元素摘要, 时间戳]
  */
-type KeyboardActivity = [string, string];
+type KeyboardActivity = [string, ElementSummary, string];
 
 /**
  * 导航历史数据类型 [URL, 时间戳]
@@ -66,14 +66,14 @@ type KeyboardActivity = [string, string];
 type NavigationHistory = [string, string];
 
 /**
- * 表单交互数据类型 [表单名称, 时间戳]
+ * 表单交互数据类型 [表单元素摘要, 时间戳]
  */
-type FormInteraction = [string, string];
+type FormInteraction = [ElementSummary, string];
 
 /**
- * 触摸事件数据类型 [事件类型, x坐标, y坐标, 时间戳]
+ * 触摸事件数据类型 [事件类型, x坐标, y坐标, 元素摘要, 时间戳]
  */
-type TouchEventData = [string, number, number, string];
+type TouchEventData = [string, number, number, ElementSummary, string];
 
 /**
  * 媒体交互数据类型 [事件类型, 媒体源, 时间戳]
@@ -188,6 +188,10 @@ interface UserBehaviourConfig {
     customEventRegistration?: boolean;
     /** 数据处理回调函数 */
     processData?: (results: TrackingResults) => void;
+    /** 是否自动发送事件 */
+    autoSendEvents?: boolean;
+    /** 事件接收后台URL */
+    sendUrl?: string;
 }
 
 /**
@@ -263,6 +267,8 @@ interface MemoryManager {
             processData: function (results: TrackingResults): void {
                 console.log(results);
             },
+            autoSendEvents: false,
+            sendUrl: '',
         };
 
         /**
@@ -292,7 +298,9 @@ interface MemoryManager {
                  * 记录页面滚动位置和时间戳
                  */
                 scroll: (): void => {
-                    results.mouseScroll.push([window.scrollX, window.scrollY, getTimeStamp()]);
+                    const scrollData: ScrollData = [window.scrollX, window.scrollY, getTimeStamp()];
+                    results.mouseScroll.push(scrollData);
+                    sendEventData('scroll', scrollData);
                 },
 
                 /**
@@ -327,17 +335,10 @@ interface MemoryManager {
                         }
                     });
                     
-                    const target = e.target as HTMLElement;
-
-                    const elementSummary: ElementSummary = {
-                        tagName: target.tagName || '',
-                        id: target.id || '',
-                        className: typeof target.className === 'string' ? target.className : '',
-                        name: target.getAttribute('name') || '',
-                        value: (target as any).value === undefined || (target as any).value === null ? '' : String((target as any).value),
-                        textContent: target.textContent?.trim() || ''
-                    };
-                    results.clicks.clickDetails.push([e.clientX, e.clientY, elementSummary, getTimeStamp()]);
+                    const elementSummary = getElementSummary(e.target);
+                    const clickDetail: ClickDetail = [e.clientX, e.clientY, elementSummary, getTimeStamp()];
+                    results.clicks.clickDetails.push(clickDetail);
+                    sendEventData('click', clickDetail);
                 },
 
                 /**
@@ -355,7 +356,9 @@ interface MemoryManager {
                  * @param e 事件对象
                  */
                 windowResize: (e: Event): void => {
-                    results.windowSizes.push([window.innerWidth, window.innerHeight, getTimeStamp()]);
+                    const windowSize: WindowSize = [window.innerWidth, window.innerHeight, getTimeStamp()];
+                    results.windowSizes.push(windowSize);
+                    sendEventData('windowResize', windowSize);
                 },
 
                 /**
@@ -364,7 +367,9 @@ interface MemoryManager {
                  * @param e 事件对象
                  */
                 visibilitychange: (e: Event): void => {
-                    results.visibilitychanges.push([document.visibilityState, getTimeStamp()]);
+                    const visibilityChange: VisibilityChange = [document.visibilityState, getTimeStamp()];
+                    results.visibilitychanges.push(visibilityChange);
+                    sendEventData('visibilitychange', visibilityChange);
                     processResults();
                 },
 
@@ -374,7 +379,10 @@ interface MemoryManager {
                  * @param e 键盘事件对象
                  */
                 keyboardActivity: (e: KeyboardEvent): void => {
-                    results.keyboardActivities.push([e.key, getTimeStamp()]);
+                    const elementSummary = getElementSummary(e.target);
+                    const keyboardActivity: KeyboardActivity = [e.key, elementSummary, getTimeStamp()];
+                    results.keyboardActivities.push(keyboardActivity);
+                    sendEventData('keyboardActivity', keyboardActivity);
                 },
 
                 /**
@@ -382,7 +390,9 @@ interface MemoryManager {
                  * 记录页面URL变化和时间戳
                  */
                 pageNavigation: (): void => {
-                    results.navigationHistory.push([location.href, getTimeStamp()]);
+                    const navigationHistory: NavigationHistory = [location.href, getTimeStamp()];
+                    results.navigationHistory.push(navigationHistory);
+                    sendEventData('pageNavigation', navigationHistory);
                 },
 
                 /**
@@ -392,8 +402,10 @@ interface MemoryManager {
                  */
                 formInteraction: (e: Event): void => {
                     e.preventDefault(); // 阻止表单正常提交
-                    const target = e.target as HTMLFormElement;
-                    results.formInteractions.push([target.name || 'unnamed', getTimeStamp()]);
+                    const elementSummary = getElementSummary(e.target);
+                    const formInteraction: FormInteraction = [elementSummary, getTimeStamp()];
+                    results.formInteractions.push(formInteraction);
+                    sendEventData('formInteraction', formInteraction);
                     // 可选：在追踪后程序化提交表单
                 },
 
@@ -404,7 +416,11 @@ interface MemoryManager {
                  */
                 touchStart: (e: globalThis.TouchEvent): void => {
                     if (e.touches && e.touches.length > 0) {
-                        results.touchEvents.push(['touchstart', e.touches[0].clientX, e.touches[0].clientY, getTimeStamp()]);
+                        const touch = e.touches[0];
+                        const elementSummary = getElementSummary(touch.target);
+                        const touchEventData: TouchEventData = ['touchstart', touch.clientX, touch.clientY, elementSummary, getTimeStamp()];
+                        results.touchEvents.push(touchEventData);
+                        sendEventData('touchStart', touchEventData);
                     }
                 },
 
@@ -415,7 +431,9 @@ interface MemoryManager {
                  */
                 mediaInteraction: (e: Event): void => {
                     const target = e.target as HTMLMediaElement;
-                    results.mediaInteractions.push(['play', target.currentSrc || '', getTimeStamp()]);
+                    const mediaInteraction: MediaInteraction = ['play', target.currentSrc || '', getTimeStamp()];
+                    results.mediaInteractions.push(mediaInteraction);
+                    sendEventData('mediaInteraction', mediaInteraction);
                 }
             }
         };
@@ -462,6 +480,59 @@ interface MemoryManager {
 
         // 初始化结果数据
         resetResults();
+
+        /**
+         * 获取元素的摘要信息
+         * @param element HTML元素
+         * @returns 元素摘要对象
+         */
+        function getElementSummary(element: EventTarget | null): ElementSummary {
+            if (!element || !(element instanceof HTMLElement)) {
+                return {
+                    tagName: '',
+                    id: '',
+                    className: '',
+                    name: '',
+                    value: '',
+                    textContent: ''
+                };
+            }
+            const target = element as HTMLElement;
+            return {
+                tagName: target.tagName || '',
+                id: target.id || '',
+                className: typeof target.className === 'string' ? target.className : '',
+                name: target.getAttribute('name') || '',
+                value: (target as any).value === undefined || (target as any).value === null ? '' : String((target as any).value),
+                textContent: target.textContent?.trim() || ''
+            };
+        }
+
+        /**
+         * 发送事件数据到后台
+         * @param eventType 事件类型
+         * @param data 事件数据
+         */
+        function sendEventData(eventType: string, data: any): void {
+            if (userConfig.autoSendEvents && userConfig.sendUrl) {
+                const payload = {
+                    type: eventType,
+                    data: data,
+                    timestamp: getTimeStamp(),
+                    url: location.href,
+                    userInfo: results.userInfo // 附加用户信息以便后台分析
+                };
+                try {
+                    // 使用 sendBeacon 保证数据能可靠发送
+                    if (navigator.sendBeacon) {
+                        console.log(`Sending event data to ${userConfig.sendUrl}`, payload);
+                        navigator.sendBeacon(userConfig.sendUrl, JSON.stringify(payload));
+                    }
+                } catch (error) {
+                    console.error('Failed to send event data:', error);
+                }
+            }
+        }
 
         /**
          * 获取当前时间戳
@@ -518,7 +589,9 @@ interface MemoryManager {
                         const lastMovement = results.mouseMovements[results.mouseMovements.length - 1];
                         if (!results.mouseMovements.length || 
                             ((mem.mousePosition[0] !== lastMovement[0]) && (mem.mousePosition[1] !== lastMovement[1]))) {
-                            results.mouseMovements.push(mem.mousePosition as MousePosition);
+                            const mousePosition = mem.mousePosition as MousePosition;
+                            results.mouseMovements.push(mousePosition);
+                            sendEventData('mouseMovement', mousePosition);
                         }
                     }
                 }, defaults.mouseMovementInterval * 1000);

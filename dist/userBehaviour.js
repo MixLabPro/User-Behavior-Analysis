@@ -29,7 +29,9 @@ var userBehaviour = (() => {
             customEventRegistration: true,
             processData: function(results2) {
               console.log(results2);
-            }
+            },
+            autoSendEvents: false,
+            sendUrl: ""
           };
           let userConfig = {};
           const mem = {
@@ -52,7 +54,9 @@ var userBehaviour = (() => {
                * 记录页面滚动位置和时间戳
                */
               scroll: () => {
-                results.mouseScroll.push([window2.scrollX, window2.scrollY, getTimeStamp()]);
+                const scrollData = [window2.scrollX, window2.scrollY, getTimeStamp()];
+                results.mouseScroll.push(scrollData);
+                sendEventData("scroll", scrollData);
               },
               /**
                * 点击事件处理函数
@@ -87,7 +91,9 @@ var userBehaviour = (() => {
                   value: target.value === void 0 || target.value === null ? "" : String(target.value),
                   textContent: target.textContent?.trim() || ""
                 };
-                results.clicks.clickDetails.push([e.clientX, e.clientY, elementSummary, getTimeStamp()]);
+                const clickDetail = [e.clientX, e.clientY, elementSummary, getTimeStamp()];
+                results.clicks.clickDetails.push(clickDetail);
+                sendEventData("click", clickDetail);
               },
               /**
                * 鼠标移动事件处理函数
@@ -103,7 +109,9 @@ var userBehaviour = (() => {
                * @param e 事件对象
                */
               windowResize: (e) => {
-                results.windowSizes.push([window2.innerWidth, window2.innerHeight, getTimeStamp()]);
+                const windowSize = [window2.innerWidth, window2.innerHeight, getTimeStamp()];
+                results.windowSizes.push(windowSize);
+                sendEventData("windowResize", windowSize);
               },
               /**
                * 页面可见性变化事件处理函数
@@ -111,7 +119,9 @@ var userBehaviour = (() => {
                * @param e 事件对象
                */
               visibilitychange: (e) => {
-                results.visibilitychanges.push([document.visibilityState, getTimeStamp()]);
+                const visibilityChange = [document.visibilityState, getTimeStamp()];
+                results.visibilitychanges.push(visibilityChange);
+                sendEventData("visibilitychange", visibilityChange);
                 processResults();
               },
               /**
@@ -120,14 +130,18 @@ var userBehaviour = (() => {
                * @param e 键盘事件对象
                */
               keyboardActivity: (e) => {
-                results.keyboardActivities.push([e.key, getTimeStamp()]);
+                const keyboardActivity = [e.key, getTimeStamp()];
+                results.keyboardActivities.push(keyboardActivity);
+                sendEventData("keyboardActivity", keyboardActivity);
               },
               /**
                * 页面导航事件处理函数
                * 记录页面URL变化和时间戳
                */
               pageNavigation: () => {
-                results.navigationHistory.push([location.href, getTimeStamp()]);
+                const navigationHistory = [location.href, getTimeStamp()];
+                results.navigationHistory.push(navigationHistory);
+                sendEventData("pageNavigation", navigationHistory);
               },
               /**
                * 表单交互事件处理函数
@@ -137,7 +151,9 @@ var userBehaviour = (() => {
               formInteraction: (e) => {
                 e.preventDefault();
                 const target = e.target;
-                results.formInteractions.push([target.name || "unnamed", getTimeStamp()]);
+                const formInteraction = [target.name || "unnamed", getTimeStamp()];
+                results.formInteractions.push(formInteraction);
+                sendEventData("formInteraction", formInteraction);
               },
               /**
                * 触摸开始事件处理函数
@@ -146,7 +162,9 @@ var userBehaviour = (() => {
                */
               touchStart: (e) => {
                 if (e.touches && e.touches.length > 0) {
-                  results.touchEvents.push(["touchstart", e.touches[0].clientX, e.touches[0].clientY, getTimeStamp()]);
+                  const touchEventData = ["touchstart", e.touches[0].clientX, e.touches[0].clientY, getTimeStamp()];
+                  results.touchEvents.push(touchEventData);
+                  sendEventData("touchStart", touchEventData);
                 }
               },
               /**
@@ -156,7 +174,9 @@ var userBehaviour = (() => {
                */
               mediaInteraction: (e) => {
                 const target = e.target;
-                results.mediaInteractions.push(["play", target.currentSrc || "", getTimeStamp()]);
+                const mediaInteraction = ["play", target.currentSrc || "", getTimeStamp()];
+                results.mediaInteractions.push(mediaInteraction);
+                sendEventData("mediaInteraction", mediaInteraction);
               }
             }
           };
@@ -192,8 +212,35 @@ var userBehaviour = (() => {
             };
           }
           resetResults();
+          function sendEventData(eventType, data) {
+            if (userConfig.autoSendEvents && userConfig.sendUrl) {
+              const payload = {
+                type: eventType,
+                data,
+                timestamp: getTimeStamp(),
+                url: location.href,
+                userInfo: results.userInfo
+                // 附加用户信息以便后台分析
+              };
+              try {
+                if (navigator.sendBeacon) {
+                  console.log(`Sending event data to ${userConfig.sendUrl}`, payload);
+                  navigator.sendBeacon(userConfig.sendUrl, JSON.stringify(payload));
+                }
+              } catch (error) {
+                console.error("Failed to send event data:", error);
+              }
+            }
+          }
           function getTimeStamp() {
-            return Date.now();
+            const now = /* @__PURE__ */ new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, "0");
+            const day = now.getDate().toString().padStart(2, "0");
+            const hours = now.getHours().toString().padStart(2, "0");
+            const minutes = now.getMinutes().toString().padStart(2, "0");
+            const seconds = now.getSeconds().toString().padStart(2, "0");
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
           }
           function config(ob) {
             userConfig = {};
@@ -216,7 +263,9 @@ var userBehaviour = (() => {
                 if (mem.mousePosition && mem.mousePosition.length) {
                   const lastMovement = results.mouseMovements[results.mouseMovements.length - 1];
                   if (!results.mouseMovements.length || mem.mousePosition[0] !== lastMovement[0] && mem.mousePosition[1] !== lastMovement[1]) {
-                    results.mouseMovements.push(mem.mousePosition);
+                    const mousePosition = mem.mousePosition;
+                    results.mouseMovements.push(mousePosition);
+                    sendEventData("mouseMovement", mousePosition);
                   }
                 }
               }, defaults.mouseMovementInterval * 1e3);
