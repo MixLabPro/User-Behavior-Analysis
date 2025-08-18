@@ -1,0 +1,71 @@
+{
+  "name": "web-user-behaviour",
+  "version": "2.0.0",
+  "description": "一个用于追踪和记录用户在网页上各种交互行为的 TypeScript 库",
+  "main": "dist/userBehaviour.js",
+  "types": "dist/userBehaviour.d.ts",
+  "module": "dist/userBehaviour.js",
+  "files": [
+    "dist/",
+    "userBehaviour.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "esbuild userBehaviour.ts --bundle --outfile=dist/userBehaviour.js --format=iife --global-name=userBehaviour",
+    "build:watch": "tsc --watch",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "dev": "tsc --watch",
+    "lint": "eslint userBehaviour.ts --ext .ts",
+    "lint:fix": "eslint userBehaviour.ts --ext .ts --fix",
+    "format": "prettier --write userBehaviour.ts",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "user-behaviour",
+    "user-tracking",
+    "web-analytics",
+    "mouse-tracking",
+    "click-tracking",
+    "keyboard-tracking",
+    "scroll-tracking",
+    "user-interaction",
+    "web-metrics",
+    "typescript",
+    "javascript",
+    "browser"
+  ],
+  "author": "Taha Al-Jody <taha@ta3.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TA3/web-user-behaviour.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TA3/web-user-behaviour/issues"
+  },
+  "homepage": "https://github.com/TA3/web-user-behaviour#readme",
+  "devDependencies": {
+    "esbuild": "^0.20.2",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie <= 11"
+  ]
+}
