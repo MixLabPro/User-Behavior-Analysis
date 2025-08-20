@@ -1,21 +1,39 @@
-# Next.js 用户行为追踪演示
+# Sarah的AI创造之旅 - Next.js演示项目
 
-这是一个使用 Next.js 构建的用户行为追踪演示应用，包含后端 API 用于收集用户数据。
+这是一个基于Next.js的用户行为分析演示项目，展示了如何集成`user-behavior-analysis`库来追踪用户行为。
 
 ## 功能特性
 
-- 🎯 **用户行为追踪**: 追踪点击、滚动、鼠标移动、键盘输入等用户行为
-- 🔧 **实时控制**: 可以启动/停止追踪，查看收集的事件数据
-- 📊 **API 接口**: 提供 `/api/collect` 接口用于接收用户行为数据
-- 🎨 **现代化 UI**: 使用 Tailwind CSS 构建的美观界面
-- 🔒 **跨域支持**: API 支持跨域请求
+- 🎨 精美的UI设计，展示Sarah的AI编程之旅
+- 📊 完整的用户行为追踪系统
+- 🖼️ AI图片生成功能（需要SiliconFlow API密钥）
+- 📋 富文本复制功能
+- 🔒 本地API密钥存储
 
-## 快速开始
+## 用户行为追踪功能
+
+项目集成了`user-behavior-analysis`库，自动追踪以下用户行为：
+
+- **页面浏览**：自动记录页面访问
+- **点击事件**：追踪按钮点击、链接点击等
+- **滚动行为**：记录页面滚动深度
+- **表单交互**：追踪表单提交和输入
+- **自定义事件**：手动追踪特定业务事件
+
+### 追踪的事件类型
+
+1. **页面浏览** (`page_view`)
+2. **按钮点击** (`button_click`)
+3. **API密钥保存** (`api_key_saved`)
+4. **内容复制** (`content_copied`)
+5. **图片生成** (`image_generated`)
+6. **图片生成失败** (`image_generation_failed`)
+
+## 安装和运行
 
 ### 1. 安装依赖
 
 ```bash
-cd demo/nextjs-demo
 npm install
 ```
 
@@ -25,142 +43,176 @@ npm install
 npm run dev
 ```
 
-应用将在 `http://localhost:3000` 启动。
-
 ### 3. 访问应用
 
-打开浏览器访问 `http://localhost:3000`，你将看到用户行为追踪演示界面。
+- 主页面：[http://localhost:3000](http://localhost:3000)
+- 测试页面：[http://localhost:3000/test](http://localhost:3000/test)
 
-## 使用方法
+## 配置说明
 
-### 控制面板
+### 用户行为分析配置
 
-- **开始追踪**: 点击绿色按钮开始收集用户行为数据
-- **停止追踪**: 点击红色按钮停止数据收集
-- **查看事件**: 点击蓝色按钮查看已收集的事件数据
-- **清空事件**: 点击灰色按钮清空本地存储的事件
+在`src/app/page.tsx`中，你可以修改`userBehaviour`的配置：
 
-### 测试区域
-
-应用提供了多个测试区域来演示不同类型的用户行为追踪：
-
-1. **点击测试**: 点击按钮测试点击事件追踪
-2. **表单测试**: 填写表单测试输入和提交事件追踪
-3. **滚动测试**: 滚动页面测试滚动事件追踪
-
-## API 接口
-
-### POST /api/collect
-
-接收用户行为数据的 API 接口。
-
-**请求体格式:**
-```json
-{
-  "type": "click",
-  "data": {
-    "x": 100,
-    "y": 200,
-    "target": "BUTTON",
-    "text": "测试点击"
-  },
-  "timestamp": "2025-08-20T16:00:21.000Z",
-  "url": "http://localhost:3000",
-  "userInfo": {
-    "windowSize": [1800, 871],
-    "appCodeName": "Mozilla",
-    "appName": "Netscape",
-    "vendor": "Google Inc.",
-    "platform": "MacIntel",
-    "userAgent": "Mozilla/5.0..."
+```typescript
+uba.config({
+  sendUrl: 'http://localhost:3000/api/track', // 后端接口地址
+  appId: 'sarah-ai-journey',                   // 应用标识
+  userId: 'anonymous-user',                    // 用户标识
+  debug: true,                                 // 调试模式
+  autoSendEvents: true,                        // 自动发送事件
+  clicks: true,                                // 追踪点击
+  mouseScroll: true,                           // 追踪滚动
+  formInteractions: true,                      // 追踪表单
+  processData: (results) => {
+    // 自定义数据处理逻辑
+    console.log('用户行为数据:', results);
   }
+});
+```
+
+### API接口
+
+项目包含一个简单的API接口来处理用户行为数据：
+
+- **POST** `/api/track` - 接收用户行为数据
+- **GET** `/api/track` - 检查API状态
+
+## 项目结构
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   └── track/
+│   │       └── route.ts          # 用户行为追踪API
+│   ├── test/
+│   │   └── page.tsx              # 测试页面
+│   ├── globals.css               # 全局样式
+│   ├── layout.tsx                # 布局组件
+│   └── page.tsx                  # 主页面
+├── public/
+│   └── user-behaviour.js         # 用户行为追踪库
+└── ...
+```
+
+## 测试用户行为追踪
+
+### 1. 访问测试页面
+
+打开浏览器访问 [http://localhost:3000/test](http://localhost:3000/test)
+
+### 2. 查看控制台输出
+
+打开浏览器开发者工具的控制台，你会看到：
+- userBehaviour库的加载状态
+- 当前配置信息
+- 用户行为数据
+
+### 3. 测试交互
+
+在测试页面中：
+- 点击按钮
+- 滚动页面
+- 在输入框中输入文字
+- 观察控制台的输出变化
+
+### 4. 查看API数据
+
+用户行为数据会自动发送到 `/api/track` 接口，你可以在控制台看到：
+- 点击事件数据
+- 滚动事件数据
+- 输入事件数据
+- 页面浏览数据
+
+## 自定义追踪事件
+
+你可以通过以下方式手动触发数据处理：
+
+```typescript
+const uba = (window as any).uba;
+if (uba) {
+  // 手动触发数据处理
+  uba.processResults();
 }
 ```
 
-**响应格式:**
-```json
-{
-  "status": "success",
-  "message": "数据接收成功",
-  "method": "POST",
-  "receivedData": { ... }
-}
-```
+## 数据持久化
 
-## 追踪的事件类型
+当前API接口只是将数据打印到控制台。在生产环境中，你可以：
 
-- `click`: 点击事件
-- `scroll`: 滚动事件
-- `mouseMovement`: 鼠标移动事件
-- `keydown`: 键盘按下事件
-- `visibilityChange`: 页面可见性变化
-- `resize`: 窗口大小变化
-- `formSubmit`: 表单提交事件
-- `input`: 输入事件
+1. 将数据保存到数据库
+2. 发送到第三方分析服务
+3. 集成到现有的数据管道
 
 ## 技术栈
 
-- **前端**: Next.js 14, React 18, TypeScript
+- **框架**: Next.js 14
+- **语言**: TypeScript
 - **样式**: Tailwind CSS
-- **API**: Next.js API Routes
-- **开发工具**: ESLint, PostCSS
-
-## 与原始 test-server.js 的对比
-
-这个 Next.js 示例实现了与 `test-server.js` 相同的功能：
-
-1. ✅ **彩色控制台输出**: 使用相同的颜色代码和日志格式
-2. ✅ **请求信息记录**: 记录请求方法、URL、时间、User-Agent 等
-3. ✅ **数据接收处理**: 支持 GET 和 POST 请求
-4. ✅ **错误处理**: 包含 JSON 解析错误处理
-5. ✅ **跨域支持**: 自动处理 CORS 和预检请求
+- **用户行为分析**: user-behavior-analysis
+- **字体**: Noto Sans SC (中文字体)
 
 ## 开发说明
 
-### 项目结构
+### 添加新的追踪事件
 
-```
-nextjs-demo/
-├── src/
-│   └── app/
-│       ├── api/
-│       │   └── collect/
-│       │       └── route.ts          # API 路由
-│       ├── globals.css               # 全局样式
-│       ├── layout.tsx                # 根布局
-│       └── page.tsx                  # 主页面
-├── package.json
-├── tailwind.config.ts
-├── postcss.config.js
-├── next.config.js
-└── tsconfig.json
-```
+1. 在页面组件中访问全局的`uba`对象
+2. 使用`uba.processResults()`方法触发数据处理
+3. 在API接口中处理新的事件类型
 
-### 自定义配置
+### 自定义样式
 
-你可以通过修改以下文件来自定义应用：
-
-- `src/app/api/collect/route.ts`: 修改 API 逻辑
-- `src/app/page.tsx`: 修改前端界面和追踪逻辑
-- `tailwind.config.ts`: 自定义 Tailwind CSS 配置
+项目使用Tailwind CSS，你可以：
+- 修改`tailwind.config.ts`配置
+- 在`globals.css`中添加自定义样式
+- 使用Tailwind的工具类快速构建UI
 
 ## 部署
 
-### 构建生产版本
+### Vercel部署
 
 ```bash
 npm run build
-npm start
+npm run start
 ```
 
 ### 环境变量
 
-如果需要配置不同的 API 端点，可以在 `.env.local` 文件中设置：
+在生产环境中，建议设置以下环境变量：
 
 ```env
-NEXT_PUBLIC_API_URL=http://your-api-domain.com/api/collect
+NEXT_PUBLIC_API_ENDPOINT=https://your-domain.com/api/track
+NEXT_PUBLIC_APP_ID=your-app-id
 ```
+
+## 故障排除
+
+### 1. userBehaviour不可用
+
+如果控制台显示"userBehaviour不可用"，请检查：
+- 脚本是否正确加载
+- 是否有JavaScript错误
+- 网络连接是否正常
+
+### 2. 数据没有发送到后端
+
+如果数据没有发送到后端，请检查：
+- API接口是否正常运行
+- 网络请求是否有错误
+- CORS配置是否正确
+
+### 3. 页面无法加载
+
+如果页面无法加载，请检查：
+- 开发服务器是否正常运行
+- 端口是否被占用
+- 依赖是否正确安装
 
 ## 许可证
 
 MIT License
+
+## 贡献
+
+欢迎提交Issue和Pull Request来改进这个项目！
