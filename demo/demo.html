@@ -228,8 +228,8 @@
                 <div class="demo-section">
                     <h3>🎵 媒体交互测试</h3>
                     <div class="video-container">
-                        <video id="demo-video" controls width="400">
-                    <source src="test.mp4" type="video/mp4">
+                        <video id="demo-video" controls width="100%" style="max-width: 400px;">
+                    <source src="demo/test.mp4" type="video/mp4">
                     您的浏览器不支持视频播放。
                 </video>
                         <p>播放上面的视频来测试媒体交互追踪功能。</p>
@@ -261,9 +261,19 @@
 
                 <div class="demo-section">
                     <h3>🎯 自定义事件测试</h3>
-                    <button onclick="triggerCustomEvent('productView')">触发产品浏览事件</button>
-                    <button onclick="triggerCustomEvent('addToCart')">触发添加购物车事件</button>
-                    <button onclick="triggerCustomEvent('purchase')">触发购买事件</button>
+                    <p>测试自定义事件追踪功能</p>
+                    <button onclick="testCustomEvent()">触发自定义事件</button>
+                    <button onclick="registerCustomEvent()">注册自定义事件监听器</button>
+                </div>
+
+                <div class="demo-section">
+                    <h3>🚀 NextJS 后端集成测试</h3>
+                    <p>测试与 NextJS 后端的集成功能</p>
+                    <button onclick="testNextJSIntegration()">启动 NextJS 集成</button>
+                    <button onclick="stopNextJSIntegration()">停止 NextJS 集成</button>
+                    <div id="nextjs-status" style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; display: none;">
+                        <strong>NextJS 集成状态:</strong> <span id="nextjs-status-text">未启动</span>
+                    </div>
                 </div>
 
                 <div style="height: 200px; background: linear-gradient(45deg, #f0f0f0, #e0e0e0); margin: 20px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
@@ -651,6 +661,76 @@
                     logActivity(`📏 窗口大小已调整为: ${window.innerWidth}x${window.innerHeight}`);
                 }, 100);
             });
+
+            // NextJS 集成测试函数
+            function testNextJSIntegration() {
+                const config = {
+                    clicks: true,
+                    mouseMovement: true,
+                    keyboardActivity: true,
+                    mouseScroll: true,
+                    autoSendEvents: true,
+                    sendUrl: 'http://localhost:3000/api/collect',
+                    processTime: 5,
+                    processData: (results) => {
+                        logActivity('🚀 数据已发送到 NextJS 后端', {
+                            点击次数: results.clicks ?.clickCount || 0,
+                            鼠标移动: results.mouseMovements ?.length || 0,
+                            键盘活动: results.keyboardActivities ?.length || 0
+                        });
+                    }
+                };
+
+                userBehaviour.config(config);
+                userBehaviour.start();
+
+                // 更新状态显示
+                const statusDiv = document.getElementById('nextjs-status');
+                const statusText = document.getElementById('nextjs-status-text');
+                if (statusDiv && statusText) {
+                    statusDiv.style.display = 'block';
+                    statusText.textContent = '已启动 - 数据将发送到 http://localhost:3000/api/collect';
+                    statusText.style.color = 'green';
+                }
+
+                logActivity('🚀 NextJS 集成已启动', {
+                    发送URL: 'http://localhost:3000/api/collect',
+                    发送间隔: '5秒'
+                });
+            }
+
+            function stopNextJSIntegration() {
+                userBehaviour.stop();
+
+                // 更新状态显示
+                const statusDiv = document.getElementById('nextjs-status');
+                const statusText = document.getElementById('nextjs-status-text');
+                if (statusDiv && statusText) {
+                    statusText.textContent = '已停止';
+                    statusText.style.color = 'red';
+                }
+
+                logActivity('⏹️ NextJS 集成已停止');
+            }
+
+            function testCustomEvent() {
+                const customEvent = new CustomEvent('userAction', {
+                    detail: {
+                        action: 'test',
+                        timestamp: new Date().toISOString(),
+                        data: '测试自定义事件数据'
+                    }
+                });
+                window.dispatchEvent(customEvent);
+                logActivity('🎯 自定义事件已触发', customEvent.detail);
+            }
+
+            function registerCustomEvent() {
+                userBehaviour.registerCustomEvent('userAction', (event) => {
+                    logActivity('🎯 检测到自定义事件', event.detail);
+                });
+                logActivity('📝 自定义事件监听器已注册');
+            }
         </script>
 </body>
 

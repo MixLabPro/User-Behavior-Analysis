@@ -1,18 +1,26 @@
 {
     "name": "user-behavior-analysis",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "一个用于追踪和记录用户在网页上各种交互行为的 TypeScript 库",
     "main": "dist/userBehaviour.js",
     "types": "dist/userBehaviour.d.ts",
     "module": "dist/userBehaviour.js",
+    "exports": {
+        ".": {
+            "import": "./dist/userBehaviour.js",
+            "require": "./dist/userBehaviour.js",
+            "types": "./dist/userBehaviour.d.ts"
+        }
+    },
     "files": [
         "dist/",
         "userBehaviour.ts",
         "README.md",
+        "DOCUMENTATION.md",
         "LICENSE"
     ],
     "scripts": {
-        "build": "esbuild userBehaviour.ts --bundle --outfile=dist/userBehaviour.js --format=iife --global-name=userBehaviour",
+        "build": "esbuild userBehaviour.ts --bundle --outfile=dist/userBehaviour.js --format=iife --global-name=userBehaviour && tsc userBehaviour.ts --declaration --emitDeclarationOnly --outDir dist",
         "build:watch": "tsc --watch",
         "clean": "rimraf dist",
         "prebuild": "npm run clean",
@@ -22,11 +30,16 @@
         "format": "prettier --write userBehaviour.ts",
         "type-check": "tsc --noEmit",
         "prepublishOnly": "npm run build",
+        "prepack": "npm run build",
+        "postpack": "npm run clean",
         "test:server": "node demo/test-server.js",
         "test:all": "node demo/start-demo.js",
         "test:status": "node demo/check-status.js",
         "demo": "open demo/demo.html",
-        "start": "node demo/start-demo.js"
+        "start": "node demo/start-demo.js",
+        "nextjs:dev": "cd nextjs && npm run dev",
+        "nextjs:build": "cd nextjs && npm run build",
+        "nextjs:start": "cd nextjs && npm start"
     },
     "keywords": [
         "user-behavior-analysis",
@@ -74,5 +87,8 @@
         "last 2 versions",
         "not dead",
         "not ie <= 11"
-    ]
+    ],
+    "dependencies": {
+        "open": "^10.2.0"
+    }
 }

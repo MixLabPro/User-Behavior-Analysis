@@ -1,4 +1,4 @@
-/// <reference path="userBehaviour.ts" />
+/// <reference path="../userBehaviour.ts" />
 
 declare const userBehaviour: {
     config: (config: any) => void;
@@ -86,6 +86,43 @@ function customConfigExample(): void {
     userBehaviour.start();
     
     console.log('当前配置:', userBehaviour.showConfig());
+}
+
+/**
+ * NextJS 后端集成示例
+ * 展示如何与 NextJS 后端集成
+ */
+function nextjsIntegrationExample(): void {
+    console.log('=== NextJS 后端集成示例 ===');
+    
+    const config: any = {
+        // 基础追踪配置
+        clicks: true,
+        mouseMovement: true,
+        keyboardActivity: true,
+        mouseScroll: true,
+        
+        // 自动发送到 NextJS 后端
+        autoSendEvents: true,
+        sendUrl: 'http://localhost:3000/api/collect',
+        processTime: 5, // 每5秒发送一次数据
+        
+        // 数据处理回调
+        processData: (results: any) => {
+            console.log('🚀 数据已发送到 NextJS 后端');
+            console.log('📊 发送的数据摘要:');
+            console.log(`   - 点击次数: ${results.clicks?.clickCount || 0}`);
+            console.log(`   - 鼠标移动: ${results.mouseMovements?.length || 0} 次`);
+            console.log(`   - 键盘活动: ${results.keyboardActivities?.length || 0} 次`);
+        }
+    };
+    
+    userBehaviour.config(config);
+    userBehaviour.start();
+    
+    console.log('✅ NextJS 后端集成已启动');
+    console.log('📡 数据将发送到: http://localhost:3000/api/collect');
+    console.log('⏰ 发送间隔: 5秒');
 }
 
 /**
@@ -328,3 +365,30 @@ export {
     customEventExample,
     runExamples
 };
+
+/**
+ * 导出所有示例函数，方便在演示页面中调用
+ */
+(window as any).userBehaviourExamples = {
+    basicExample,
+    customConfigExample,
+    nextjsIntegrationExample,
+    dataAnalysisExample,
+    realTimeMonitoringExample,
+    customEventExample,
+    analyzeUserBehaviour,
+    calculateClicksPerMinute,
+    calculateMouseDistance,
+    analyzeScrollBehaviour,
+    analyzeKeyboardActivity,
+    calculateActivityLevel
+};
+
+// 在控制台中可以直接调用这些函数
+console.log('🎯 可用的示例函数:');
+console.log('  - userBehaviourExamples.basicExample()');
+console.log('  - userBehaviourExamples.customConfigExample()');
+console.log('  - userBehaviourExamples.nextjsIntegrationExample()');
+console.log('  - userBehaviourExamples.dataAnalysisExample()');
+console.log('  - userBehaviourExamples.realTimeMonitoringExample()');
+console.log('  - userBehaviourExamples.customEventExample()');

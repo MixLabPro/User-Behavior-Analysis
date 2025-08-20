@@ -39,7 +39,7 @@
   "include": [
     "*.ts",
     "*.js"
-  ],
+, "demo/example.ts"  ],
   "exclude": [
     "node_modules",
     "dist",
