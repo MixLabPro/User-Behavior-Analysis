@@ -28,18 +28,6 @@ userBehaviour.config({
 userBehaviour.start();
 ```
 
-### 一键演示
-
-```bash
-# 安装依赖
-npm install
-
-# 启动演示环境
-npm start
-```
-
-访问 http://localhost:8080/demo/demo.html 查看完整演示。
-
 ## ✨ 功能特性
 
 - 🖱️ **鼠标行为追踪** - 移动轨迹、点击位置、滚动行为
@@ -88,12 +76,6 @@ MIT License - 查看 [LICENSE](LICENSE) 文件了解详情。
 
 查看 [DOCUMENTATION.md](DOCUMENTATION.md) 获取完整的使用指南、配置选项、API参考和示例代码。
 
-## 🤝 支持
 
-- 📧 邮件：taha@ta3.dev
-- 🐛 [Issues](https://github.com/MixLabPro/User-Behavior-Analysis/issues)
-- 💬 [Discussions](https://github.com/MixLabPro/User-Behavior-Analysis/discussions)
-
----
 
 **开始使用 User Behavior Analysis 库，深入了解您的用户行为！** 🚀
