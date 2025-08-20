@@ -12,7 +12,7 @@
         "next": "14.0.0",
         "react": "^18",
         "react-dom": "^18",
-        "user-behavior-analysis": "^2.0.1"
+        "user-behavior-analysis": "^2.0.2"
     },
     "devDependencies": {
         "@types/node": "^20",

@@ -20,7 +20,7 @@
         "LICENSE"
     ],
     "scripts": {
-        "build": "esbuild userBehaviour.ts --bundle --outfile=dist/userBehaviour.js --format=iife --global-name=userBehaviour && tsc userBehaviour.ts --declaration --emitDeclarationOnly --outDir dist",
+        "build": "esbuild userBehaviour.ts --bundle --outfile=dist/userBehaviour.js --format=cjs && tsc userBehaviour.ts --declaration --emitDeclarationOnly --outDir dist",
         "build:watch": "tsc --watch",
         "clean": "rimraf dist",
         "prebuild": "npm run clean",

@@ -17,71 +17,79 @@ export default function Home() {
     // 动态导入user-behavior-analysis，避免SSR问题
     const initUserBehaviorAnalysis = async () => {
       try {
-        // 动态加载脚本
-        const script = document.createElement('script');
-        script.src = '/user-behaviour.js'; // 我们需要将库文件放到public目录
-        script.onload = () => {
-          // 脚本加载完成后，使用全局变量
-          const uba = (window as any).userBehaviour;
-          
-          if (!uba) {
-            console.error('userBehaviour不可用');
-            return;
-          }
-          
-          // 配置用户行为追踪
-          uba.config({
-            // 配置后端接口地址
-            sendUrl: 'api/track',
-            // 应用标识
-            appId: 'sarah-ai-journey',
-            // 用户标识（可以从登录系统获取）
-            userId: 'anonymous-user',
-            // 是否启用调试模式
-            debug: true,
-            // 自动收集页面浏览事件
-            autoSendEvents: true,
-            // 自动收集点击事件
-            clicks: true,
-            // 自动收集滚动事件
-            mouseScroll: true,
-            // 自动收集表单提交事件
-            formInteractions: true,
-            // 数据处理回调函数
-            processData: (results: any) => {
-              console.log('用户行为数据:', results);
-              // 这里可以发送数据到后端
-              fetch('api/track', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  type: 'user_behavior',
-                  data: results,
-                  timestamp: new Date().toISOString(),
-                  appId: 'sarah-ai-journey',
-                  userId: 'anonymous-user'
-                })
-              }).catch(error => {
-                console.error('发送用户行为数据失败:', error);
-              });
-            }
-          });
-
-          // 开始追踪
-          uba.start();
-
-          // 手动追踪页面加载事件
-          uba.processResults();
-
-          // 将实例保存到全局变量，以便在其他地方使用
-          (window as any).uba = uba;
-        };
+        console.log('🔍 开始动态导入 user-behavior-analysis...');
         
-        document.head.appendChild(script);
+        // 动态导入模块
+        const userBehaviourModule = await import('user-behavior-analysis');
+        console.log('📦 导入的模块:', userBehaviourModule);
+        
+        // 兼容不同的导出方式
+        const uba = userBehaviourModule.default || userBehaviourModule;
+        console.log('🎯 使用的 uba 对象:', uba);
+        console.log('🎯 uba 对象的方法:', Object.keys(uba || {}));
+        
+        if (!uba || typeof uba.config !== 'function') {
+          console.error('❌ userBehaviour 加载失败：未找到 config 方法');
+          console.error('uba 详情:', uba);
+          return;
+        }
+        
+        console.log('✅ userBehaviour 加载成功，开始配置...');
+        
+        // 配置用户行为追踪
+        uba.config({
+          // 配置后端接口地址
+          sendUrl: '/api/track',
+          // 应用标识
+          appId: 'sarah-ai-journey',
+          // 用户标识（可以从登录系统获取）
+          userId: 'anonymous-user',
+          // 是否启用调试模式
+          debug: true,
+          // 自动收集页面浏览事件
+          autoSendEvents: true,
+          // 自动收集点击事件
+          clicks: true,
+          // 自动收集滚动事件
+          mouseScroll: true,
+          // 自动收集表单提交事件
+          formInteractions: true,
+          // 数据处理回调函数
+          processData: (results: any) => {
+            console.log('用户行为数据:', results);
+            // 这里可以发送数据到后端
+            fetch('/api/track', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                type: 'user_behavior',
+                data: results,
+                timestamp: new Date().toISOString(),
+                appId: 'sarah-ai-journey',
+                userId: 'anonymous-user'
+              })
+            }).catch(error => {
+              console.error('发送用户行为数据失败:', error);
+            });
+          }
+        });
+
+        console.log('🚀 开始用户行为追踪...');
+        // 开始追踪
+        uba.start();
+
+        // 手动追踪页面加载事件
+        uba.processResults();
+
+        // 将实例保存到全局变量，以便在其他地方使用
+        (window as any).uba = uba;
+        
+        console.log('✅ 用户行为分析初始化完成！');
       } catch (error) {
-        console.error('初始化用户行为分析失败:', error);
+        console.error('❌ 初始化用户行为分析失败:', error);
+        console.error('错误详情:', error);
       }
     };
 
