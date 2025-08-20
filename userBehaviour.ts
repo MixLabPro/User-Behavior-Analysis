@@ -204,6 +204,7 @@ interface EventListeners {
     windowResize: ((e: Event) => void) | null;
     visibilitychange: ((e: Event) => void) | null;
     keyboardActivity: ((e: KeyboardEvent) => void) | null;
+    inputActivity: ((e: Event) => void) | null;
     touchStart: ((e: globalThis.TouchEvent) => void) | null;
 }
 
@@ -217,6 +218,7 @@ interface EventFunctions {
     windowResize: (e: Event) => void;
     visibilitychange: (e: Event) => void;
     keyboardActivity: (e: KeyboardEvent) => void;
+    inputActivity: (e: Event) => void;
     pageNavigation: () => void;
     formInteraction: (e: Event) => void;
     touchStart: (e: globalThis.TouchEvent) => void;
@@ -290,6 +292,7 @@ interface MemoryManager {
                 windowResize: null,
                 visibilitychange: null,
                 keyboardActivity: null,
+                inputActivity: null,
                 touchStart: null
             },
             eventsFunctions: {
@@ -386,6 +389,20 @@ interface MemoryManager {
                 },
 
                 /**
+                 * 输入活动事件处理函数
+                 * 记录输入框的内容变化和时间戳
+                 * @param e 输入事件对象
+                 */
+                inputActivity: (e: Event): void => {
+                    const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+                    const elementSummary = getElementSummary(e.target);
+                    const inputValue = target.value || '';
+                    const inputActivity: KeyboardActivity = [inputValue, elementSummary, getTimeStamp()];
+                    results.keyboardActivities.push(inputActivity);
+                    sendEventData('inputActivity', inputActivity);
+                },
+
+                /**
                  * 页面导航事件处理函数
                  * 记录页面URL变化和时间戳
                  */
@@ -431,7 +448,7 @@ interface MemoryManager {
                  */
                 mediaInteraction: (e: Event): void => {
                     const target = e.target as HTMLMediaElement;
-                    const mediaInteraction: MediaInteraction = ['play', target.currentSrc || '', getTimeStamp()];
+                    const mediaInteraction: MediaInteraction = [e.type, target.currentSrc || '', getTimeStamp()];
                     results.mediaInteractions.push(mediaInteraction);
                     sendEventData('mediaInteraction', mediaInteraction);
                 }
@@ -620,6 +637,8 @@ interface MemoryManager {
             // 键盘活动追踪
             if (userConfig.keyboardActivity) {
                 window.addEventListener("keydown", mem.eventsFunctions.keyboardActivity);
+                // 添加输入事件监听，用于捕获输入框的内容变化
+                document.addEventListener("input", mem.eventsFunctions.inputActivity);
             }
 
             // 页面导航追踪
@@ -657,8 +676,11 @@ interface MemoryManager {
 
             // 音视频交互追踪
             if (userConfig.audioVideoInteraction) {
-                document.querySelectorAll('video').forEach(video => {
-                    video.addEventListener('play', mem.eventsFunctions.mediaInteraction);
+                document.querySelectorAll('video, audio').forEach(media => {
+                    media.addEventListener('play', mem.eventsFunctions.mediaInteraction);
+                    media.addEventListener('pause', mem.eventsFunctions.mediaInteraction);
+                    media.addEventListener('ended', mem.eventsFunctions.mediaInteraction);
+                    media.addEventListener('timeupdate', mem.eventsFunctions.mediaInteraction);
                     // 可以根据需要添加其他媒体事件
                 });
             }
@@ -702,7 +724,18 @@ interface MemoryManager {
             window.removeEventListener("resize", mem.eventsFunctions.windowResize);
             window.removeEventListener("visibilitychange", mem.eventsFunctions.visibilitychange);
             window.removeEventListener("keydown", mem.eventsFunctions.keyboardActivity);
+            document.removeEventListener("input", mem.eventsFunctions.inputActivity);
             window.removeEventListener("touchstart", mem.eventsFunctions.touchStart);
+            
+            // 移除媒体事件监听器
+            if (userConfig.audioVideoInteraction) {
+                document.querySelectorAll('video, audio').forEach(media => {
+                    media.removeEventListener('play', mem.eventsFunctions.mediaInteraction);
+                    media.removeEventListener('pause', mem.eventsFunctions.mediaInteraction);
+                    media.removeEventListener('ended', mem.eventsFunctions.mediaInteraction);
+                    media.removeEventListener('timeupdate', mem.eventsFunctions.mediaInteraction);
+                });
+            }
 
             // 记录停止时间并处理最终结果
             results.time.stopTime = getTimeStamp();

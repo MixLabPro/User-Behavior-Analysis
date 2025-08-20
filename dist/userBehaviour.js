@@ -46,6 +46,7 @@ var userBehaviour = (() => {
               windowResize: null,
               visibilitychange: null,
               keyboardActivity: null,
+              inputActivity: null,
               touchStart: null
             },
             eventsFunctions: {
@@ -82,15 +83,7 @@ var userBehaviour = (() => {
                     path.push(node);
                   }
                 });
-                const target = e.target;
-                const elementSummary = {
-                  tagName: target.tagName || "",
-                  id: target.id || "",
-                  className: typeof target.className === "string" ? target.className : "",
-                  name: target.getAttribute("name") || "",
-                  value: target.value === void 0 || target.value === null ? "" : String(target.value),
-                  textContent: target.textContent?.trim() || ""
-                };
+                const elementSummary = getElementSummary(e.target);
                 const clickDetail = [e.clientX, e.clientY, elementSummary, getTimeStamp()];
                 results.clicks.clickDetails.push(clickDetail);
                 sendEventData("click", clickDetail);
@@ -130,9 +123,23 @@ var userBehaviour = (() => {
                * @param e 键盘事件对象
                */
               keyboardActivity: (e) => {
-                const keyboardActivity = [e.key, getTimeStamp()];
+                const elementSummary = getElementSummary(e.target);
+                const keyboardActivity = [e.key, elementSummary, getTimeStamp()];
                 results.keyboardActivities.push(keyboardActivity);
                 sendEventData("keyboardActivity", keyboardActivity);
+              },
+              /**
+               * 输入活动事件处理函数
+               * 记录输入框的内容变化和时间戳
+               * @param e 输入事件对象
+               */
+              inputActivity: (e) => {
+                const target = e.target;
+                const elementSummary = getElementSummary(e.target);
+                const inputValue = target.value || "";
+                const inputActivity = [inputValue, elementSummary, getTimeStamp()];
+                results.keyboardActivities.push(inputActivity);
+                sendEventData("inputActivity", inputActivity);
               },
               /**
                * 页面导航事件处理函数
@@ -150,8 +157,8 @@ var userBehaviour = (() => {
                */
               formInteraction: (e) => {
                 e.preventDefault();
-                const target = e.target;
-                const formInteraction = [target.name || "unnamed", getTimeStamp()];
+                const elementSummary = getElementSummary(e.target);
+                const formInteraction = [elementSummary, getTimeStamp()];
                 results.formInteractions.push(formInteraction);
                 sendEventData("formInteraction", formInteraction);
               },
@@ -162,7 +169,9 @@ var userBehaviour = (() => {
                */
               touchStart: (e) => {
                 if (e.touches && e.touches.length > 0) {
-                  const touchEventData = ["touchstart", e.touches[0].clientX, e.touches[0].clientY, getTimeStamp()];
+                  const touch = e.touches[0];
+                  const elementSummary = getElementSummary(touch.target);
+                  const touchEventData = ["touchstart", touch.clientX, touch.clientY, elementSummary, getTimeStamp()];
                   results.touchEvents.push(touchEventData);
                   sendEventData("touchStart", touchEventData);
                 }
@@ -174,7 +183,7 @@ var userBehaviour = (() => {
                */
               mediaInteraction: (e) => {
                 const target = e.target;
-                const mediaInteraction = ["play", target.currentSrc || "", getTimeStamp()];
+                const mediaInteraction = [e.type, target.currentSrc || "", getTimeStamp()];
                 results.mediaInteractions.push(mediaInteraction);
                 sendEventData("mediaInteraction", mediaInteraction);
               }
@@ -212,6 +221,27 @@ var userBehaviour = (() => {
             };
           }
           resetResults();
+          function getElementSummary(element) {
+            if (!element || !(element instanceof HTMLElement)) {
+              return {
+                tagName: "",
+                id: "",
+                className: "",
+                name: "",
+                value: "",
+                textContent: ""
+              };
+            }
+            const target = element;
+            return {
+              tagName: target.tagName || "",
+              id: target.id || "",
+              className: typeof target.className === "string" ? target.className : "",
+              name: target.getAttribute("name") || "",
+              value: target.value === void 0 || target.value === null ? "" : String(target.value),
+              textContent: target.textContent?.trim() || ""
+            };
+          }
           function sendEventData(eventType, data) {
             if (userConfig.autoSendEvents && userConfig.sendUrl) {
               const payload = {
@@ -284,6 +314,7 @@ var userBehaviour = (() => {
             }
             if (userConfig.keyboardActivity) {
               window2.addEventListener("keydown", mem.eventsFunctions.keyboardActivity);
+              document.addEventListener("input", mem.eventsFunctions.inputActivity);
             }
             if (userConfig.pageNavigation) {
               const originalPushState = window2.history.pushState;
@@ -306,8 +337,11 @@ var userBehaviour = (() => {
               window2.addEventListener("touchstart", mem.eventsFunctions.touchStart);
             }
             if (userConfig.audioVideoInteraction) {
-              document.querySelectorAll("video").forEach((video) => {
-                video.addEventListener("play", mem.eventsFunctions.mediaInteraction);
+              document.querySelectorAll("video, audio").forEach((media) => {
+                media.addEventListener("play", mem.eventsFunctions.mediaInteraction);
+                media.addEventListener("pause", mem.eventsFunctions.mediaInteraction);
+                media.addEventListener("ended", mem.eventsFunctions.mediaInteraction);
+                media.addEventListener("timeupdate", mem.eventsFunctions.mediaInteraction);
               });
             }
             if (typeof userConfig.processTime === "number" && userConfig.processTime > 0) {
@@ -335,7 +369,16 @@ var userBehaviour = (() => {
             window2.removeEventListener("resize", mem.eventsFunctions.windowResize);
             window2.removeEventListener("visibilitychange", mem.eventsFunctions.visibilitychange);
             window2.removeEventListener("keydown", mem.eventsFunctions.keyboardActivity);
+            document.removeEventListener("input", mem.eventsFunctions.inputActivity);
             window2.removeEventListener("touchstart", mem.eventsFunctions.touchStart);
+            if (userConfig.audioVideoInteraction) {
+              document.querySelectorAll("video, audio").forEach((media) => {
+                media.removeEventListener("play", mem.eventsFunctions.mediaInteraction);
+                media.removeEventListener("pause", mem.eventsFunctions.mediaInteraction);
+                media.removeEventListener("ended", mem.eventsFunctions.mediaInteraction);
+                media.removeEventListener("timeupdate", mem.eventsFunctions.mediaInteraction);
+              });
+            }
             results.time.stopTime = getTimeStamp();
             processResults();
           }

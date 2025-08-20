@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,19 +8,42 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             line-height: 1.6;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+        }
+        
+        .main-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 350px;
+            background: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 350px;
+            padding: 20px;
         }
         
         .container {
             background: white;
             border-radius: 10px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         
         h1 {
@@ -57,7 +81,8 @@
             background: #5a6fd8;
         }
         
-        input, textarea {
+        input,
+        textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -72,6 +97,7 @@
             border-radius: 6px;
             margin: 20px 0;
             font-family: monospace;
+            font-size: 13px;
         }
         
         .log {
@@ -81,9 +107,10 @@
             border-radius: 6px;
             margin: 20px 0;
             font-family: monospace;
-            font-size: 12px;
-            max-height: 300px;
+            font-size: 11px;
+            height: calc(100vh - 400px);
             overflow-y: auto;
+            border: 1px solid #4a5568;
         }
         
         .controls {
@@ -112,34 +139,31 @@
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>🎯 Web User Behaviour - TypeScript 版本演示</h1>
-        
+
         <div class="controls">
             <button onclick="startTracking()">🚀 开始追踪</button>
             <button onclick="stopTracking()">⏹️ 停止追踪</button>
             <button onclick="showResults()">📊 显示结果</button>
             <button onclick="clearLog()">🗑️ 清除日志</button>
+            <button onclick="toggleDetailedLogs()" id="toggleLogsBtn">🔍 显示详细日志</button>
         </div>
-        
+
         <div class="stats" id="stats">
-            <strong>📈 实时统计:</strong><br>
-            追踪状态: <span id="status">未开始</span><br>
-            点击次数: <span id="clickCount">0</span><br>
-            鼠标移动: <span id="mouseCount">0</span><br>
-            滚动次数: <span id="scrollCount">0</span><br>
-            键盘活动: <span id="keyCount">0</span>
+            <strong>📈 实时统计:</strong><br> 追踪状态: <span id="status">未开始</span><br> 点击次数: <span id="clickCount">0</span><br> 鼠标移动: <span id="mouseCount">0</span><br> 滚动次数: <span id="scrollCount">0</span><br> 键盘活动: <span id="keyCount">0</span>
         </div>
-        
+
         <div class="log" id="log">
             <div>💡 提示: 点击"开始追踪"按钮开始用户行为追踪...</div>
         </div>
-        
+
         <div class="grid">
             <div class="demo-section">
                 <h3>🖱️ 鼠标交互测试</h3>
@@ -148,14 +172,15 @@
                 <button onclick="handleClick('按钮3')">点击我 - 按钮3</button>
                 <p>移动鼠标到这个区域，或者点击上面的按钮来测试鼠标追踪功能。</p>
             </div>
-            
+
             <div class="demo-section">
                 <h3>⌨️ 键盘交互测试</h3>
-                <input type="text" placeholder="在这里输入一些文字来测试键盘追踪..." />
-                <textarea placeholder="或者在这个文本区域输入多行文字..."></textarea>
+                <input type="text" id="keyboard-test-input" placeholder="在这里输入一些文字来测试键盘追踪..." />
+                <textarea id="keyboard-test-textarea" placeholder="或者在这个文本区域输入多行文字..."></textarea>
+                <p>在输入框中输入文字来测试键盘追踪功能。</p>
             </div>
         </div>
-        
+
         <div class="grid">
             <div class="demo-section">
                 <h3>📝 表单交互测试</h3>
@@ -165,7 +190,7 @@
                     <button type="submit">提交表单</button>
                 </form>
             </div>
-            
+
             <div class="demo-section">
                 <h3>📱 触摸事件测试</h3>
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; text-align: center;">
@@ -174,57 +199,62 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="demo-section">
             <h3>🎵 媒体交互测试</h3>
             <div class="video-container">
-                <video controls width="400">
-                    <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" type="video/mp4">
+                <video id="demo-video" controls width="400">
+                    <source src="test.mp4" type="video/mp4">
                     您的浏览器不支持视频播放。
                 </video>
                 <p>播放上面的视频来测试媒体交互追踪功能。</p>
+                <div style="margin-top: 10px;">
+                    <button onclick="testVideoEvents()">测试视频事件</button>
+                    <button onclick="logVideoInfo()">显示视频信息</button>
+                </div>
             </div>
         </div>
-        
+
         <div class="demo-section">
             <h3>🔄 页面导航测试</h3>
             <button onclick="simulateNavigation()">模拟页面导航</button>
             <button onclick="changeHash()">改变 URL Hash</button>
             <p>点击按钮来测试页面导航追踪功能。</p>
         </div>
-        
+
         <div class="demo-section">
             <h3>📏 窗口调整测试</h3>
             <p>尝试调整浏览器窗口大小来测试窗口尺寸变化追踪。</p>
             <p>或者按 F11 进入/退出全屏模式。</p>
         </div>
-        
+
         <div class="demo-section">
             <h3>👁️ 页面可见性测试</h3>
             <p>切换到其他标签页或最小化浏览器窗口来测试页面可见性变化追踪。</p>
             <button onclick="simulateVisibilityChange()">模拟可见性变化</button>
         </div>
-        
+
         <div class="demo-section">
             <h3>🎯 自定义事件测试</h3>
             <button onclick="triggerCustomEvent('productView')">触发产品浏览事件</button>
             <button onclick="triggerCustomEvent('addToCart')">触发添加购物车事件</button>
             <button onclick="triggerCustomEvent('purchase')">触发购买事件</button>
         </div>
-        
+
         <div style="height: 200px; background: linear-gradient(45deg, #f0f0f0, #e0e0e0); margin: 20px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
             <p>滚动页面来测试滚动事件追踪 📜</p>
         </div>
     </div>
 
     <!-- 加载编译后的 JavaScript 文件 -->
-    <script src="dist/userBehaviour.js"></script>
-    
+    <script src="../dist/userBehaviour.js"></script>
+
     <script>
         // 全局变量
         let isTracking = false;
         let currentResults = null;
-        
+        let showDetailedLogs = false; // 默认不显示详细JSON数据
+
         // 配置用户行为追踪
         const config = {
             // 启用所有追踪功能
@@ -245,8 +275,8 @@
             audioVideoInteraction: true,
             customEventRegistration: true,
             autoSendEvents: true,
-            sendUrl: 'http://127.0.0.1:3000/get',
-            
+            sendUrl: 'http://127.0.0.1:5005/get',
+
             // 自定义数据处理函数
             processData: function(results) {
                 currentResults = results;
@@ -254,23 +284,23 @@
                 logActivity('📊 数据处理完成', results);
             }
         };
-        
+
         // 应用配置
         userBehaviour.config(config);
-        
+
         // 注册自定义事件监听器
         userBehaviour.registerCustomEvent('productView', function(event) {
             logActivity('🛍️ 产品浏览事件', event.detail);
         });
-        
+
         userBehaviour.registerCustomEvent('addToCart', function(event) {
             logActivity('🛒 添加购物车事件', event.detail);
         });
-        
+
         userBehaviour.registerCustomEvent('purchase', function(event) {
             logActivity('💳 购买事件', event.detail);
         });
-        
+
         // 开始追踪
         function startTracking() {
             if (!isTracking) {
@@ -282,7 +312,7 @@
                 logActivity('⚠️ 追踪已经在运行中');
             }
         }
-        
+
         // 停止追踪
         function stopTracking() {
             if (isTracking) {
@@ -294,12 +324,12 @@
                 logActivity('⚠️ 追踪尚未开始');
             }
         }
-        
+
         // 显示结果
         function showResults() {
             const results = userBehaviour.showResult();
             logActivity('📋 当前追踪结果', results);
-            
+
             // 在新窗口中显示详细结果
             const newWindow = window.open('', '_blank');
             newWindow.document.write(`
@@ -312,12 +342,12 @@
                 </html>
             `);
         }
-        
+
         // 清除日志
         function clearLog() {
             document.getElementById('log').innerHTML = '<div>📝 日志已清除</div>';
         }
-        
+
         // 更新统计信息
         function updateStats(results) {
             if (results.clicks) {
@@ -333,57 +363,72 @@
                 document.getElementById('keyCount').textContent = results.keyboardActivities.length;
             }
         }
-        
+
         // 记录活动日志
         function logActivity(message, data = null) {
             const log = document.getElementById('log');
             const timestamp = new Date().toLocaleTimeString();
             const logEntry = document.createElement('div');
-            
-            if (data) {
+
+            if (data && showDetailedLogs) {
+                // 只有在开启详细日志时才显示JSON数据
                 logEntry.innerHTML = `[${timestamp}] ${message}<br><pre style="margin: 5px 0; font-size: 11px; color: #a0aec0;">${JSON.stringify(data, null, 2)}</pre>`;
             } else {
                 logEntry.innerHTML = `[${timestamp}] ${message}`;
             }
-            
+
             log.appendChild(logEntry);
             log.scrollTop = log.scrollHeight;
         }
-        
+
+        // 切换详细日志显示
+        function toggleDetailedLogs() {
+            showDetailedLogs = !showDetailedLogs;
+            const btn = document.getElementById('toggleLogsBtn');
+            if (showDetailedLogs) {
+                btn.textContent = '🔍 隐藏详细日志';
+                btn.style.background = '#e74c3c';
+            } else {
+                btn.textContent = '🔍 显示详细日志';
+                btn.style.background = '#667eea';
+            }
+            logActivity(`🔍 详细日志已${showDetailedLogs ? '开启' : '关闭'}`);
+        }
+
         // 处理点击事件
         function handleClick(buttonName) {
             logActivity(`🖱️ 点击了 ${buttonName}`);
         }
-        
+
         // 处理表单提交
         function handleFormSubmit(event) {
             event.preventDefault();
             logActivity('📝 表单提交事件被触发');
         }
-        
+
         // 处理触摸事件
         function handleTouch() {
             logActivity('📱 触摸事件被触发');
         }
-        
+
         // 模拟页面导航
         function simulateNavigation() {
             const newUrl = window.location.href + '#section-' + Date.now();
             history.pushState({}, '', newUrl);
             logActivity('🔄 模拟页面导航: ' + newUrl);
         }
-        
+
         // 改变 Hash
         function changeHash() {
             window.location.hash = '#hash-' + Date.now();
             logActivity('🔗 URL Hash 已改变');
         }
-        
+
         // 模拟可见性变化
         function simulateVisibilityChange() {
             logActivity('👁️ 请切换到其他标签页来测试可见性变化');
         }
-        
+
         // 触发自定义事件
         function triggerCustomEvent(eventType) {
             const eventData = {
@@ -391,20 +436,120 @@
                 timestamp: Date.now(),
                 userId: 'demo-user-123'
             };
-            
+
             const customEvent = new CustomEvent(eventType, {
                 detail: eventData
             });
-            
+
             window.dispatchEvent(customEvent);
         }
-        
+
+        // 测试视频事件
+        function testVideoEvents() {
+            const video = document.getElementById('demo-video');
+            if (video) {
+                logActivity('🎵 开始测试视频事件');
+
+                // 手动触发一些视频事件来测试
+                video.dispatchEvent(new Event('play'));
+                logActivity('🎵 手动触发 play 事件');
+
+                setTimeout(() => {
+                    video.dispatchEvent(new Event('pause'));
+                    logActivity('🎵 手动触发 pause 事件');
+                }, 1000);
+
+                setTimeout(() => {
+                    video.dispatchEvent(new Event('ended'));
+                    logActivity('🎵 手动触发 ended 事件');
+                }, 2000);
+            }
+        }
+
+        // 显示视频信息
+        function logVideoInfo() {
+            const video = document.getElementById('demo-video');
+            if (video) {
+                const info = {
+                    id: video.id,
+                    src: video.currentSrc,
+                    duration: video.duration,
+                    currentTime: video.currentTime,
+                    paused: video.paused,
+                    ended: video.ended,
+                    readyState: video.readyState
+                };
+                logActivity('🎵 视频信息', info);
+            }
+        }
+
         // 页面加载完成后的初始化
         document.addEventListener('DOMContentLoaded', function() {
             logActivity('🎉 页面加载完成，用户行为追踪演示已准备就绪');
             logActivity('💡 点击"开始追踪"按钮开始体验各种追踪功能');
+
+            // 为键盘交互测试添加事件监听器
+            const keyboardInput = document.getElementById('keyboard-test-input');
+            const keyboardTextarea = document.getElementById('keyboard-test-textarea');
+
+            if (keyboardInput) {
+                keyboardInput.addEventListener('input', function(e) {
+                    logActivity('⌨️ 输入框内容变化', {
+                        element: 'input',
+                        value: e.target.value,
+                        length: e.target.value.length
+                    });
+                });
+
+                keyboardInput.addEventListener('keydown', function(e) {
+                    logActivity('⌨️ 按键事件', {
+                        element: 'input',
+                        key: e.key,
+                        keyCode: e.keyCode,
+                        ctrlKey: e.ctrlKey,
+                        shiftKey: e.shiftKey,
+                        altKey: e.altKey
+                    });
+                });
+            }
+
+            if (keyboardTextarea) {
+                keyboardTextarea.addEventListener('input', function(e) {
+                    logActivity('⌨️ 文本区域内容变化', {
+                        element: 'textarea',
+                        value: e.target.value,
+                        length: e.target.value.length
+                    });
+                });
+
+                keyboardTextarea.addEventListener('keydown', function(e) {
+                    logActivity('⌨️ 按键事件', {
+                        element: 'textarea',
+                        key: e.key,
+                        keyCode: e.keyCode,
+                        ctrlKey: e.ctrlKey,
+                        shiftKey: e.shiftKey,
+                        altKey: e.altKey
+                    });
+                });
+            }
+
+            // 为视频添加额外的事件监听器用于调试
+            const video = document.getElementById('demo-video');
+            if (video) {
+                const events = ['play', 'pause', 'ended', 'timeupdate', 'loadedmetadata', 'canplay'];
+                events.forEach(eventType => {
+                    video.addEventListener(eventType, function(e) {
+                        logActivity(`🎵 视频事件: ${eventType}`, {
+                            currentTime: video.currentTime,
+                            duration: video.duration,
+                            paused: video.paused
+                        });
+                    });
+                });
+            }
         });
-        
+
         // 添加一些额外的事件监听器用于演示
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
@@ -413,7 +558,7 @@
                 logActivity('👁️ 页面变为可见');
             }
         });
-        
+
         // 监听窗口大小变化
         let resizeTimeout;
         window.addEventListener('resize', function() {
@@ -424,4 +569,5 @@
         });
     </script>
 </body>
+
 </html>
