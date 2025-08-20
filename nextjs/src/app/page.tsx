@@ -32,7 +32,7 @@ export default function Home() {
           // 配置用户行为追踪
           uba.config({
             // 配置后端接口地址
-            sendUrl: 'http://localhost:3000/api/track',
+            sendUrl: 'api/track',
             // 应用标识
             appId: 'sarah-ai-journey',
             // 用户标识（可以从登录系统获取）
@@ -51,7 +51,7 @@ export default function Home() {
             processData: (results: any) => {
               console.log('用户行为数据:', results);
               // 这里可以发送数据到后端
-              fetch('http://localhost:3000/api/track', {
+              fetch('api/track', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
