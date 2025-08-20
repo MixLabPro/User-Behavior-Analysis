@@ -1,6 +1,6 @@
 {
     "name": "user-behavior-analysis",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "一个用于追踪和记录用户在网页上各种交互行为的 TypeScript 库",
     "main": "dist/userBehaviour.js",
     "types": "dist/userBehaviour.d.ts",
