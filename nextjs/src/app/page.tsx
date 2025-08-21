@@ -320,6 +320,33 @@ export default function Home() {
   return (
     <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
       <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Brand Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center mr-3">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <h2 className="text-2xl font-bold text-gray-800">Mixlab</h2>
+              <p className="text-sm text-gray-600">AI编程社区</p>
+            </div>
+          </div>
+          <p className="text-lg text-gray-700 mb-2">0代码基础都能开自己的工具提升效率</p>
+          <a 
+            href="https://codenow.wiki" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium transition-colors duration-200"
+          >
+            <span>官网地址</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        </div>
+
         {/* Header */}
         <header className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
