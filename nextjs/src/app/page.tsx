@@ -333,7 +333,7 @@ export default function Home() {
               <p className="text-sm text-gray-600">AI编程社区</p>
             </div>
           </div>
-          <p className="text-lg text-gray-700 mb-2">0代码基础都能开自己的工具提升效率</p>
+          <p className="text-lg text-gray-700 mb-2">0代码基础都能开发自己的工具提升效率</p>
           <a 
             href="https://codenow.wiki" 
             target="_blank" 
