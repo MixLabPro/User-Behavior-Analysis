@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户行为播放器演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .primary-btn {
+            background: #007bff;
+            color: white;
+        }
+        
+        .primary-btn:hover {
+            background: #0056b3;
+        }
+        
+        .secondary-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .secondary-btn:hover {
+            background: #545b62;
+        }
+        
+        .success-btn {
+            background: #28a745;
+            color: white;
+        }
+        
+        .success-btn:hover {
+            background: #1e7e34;
+        }
+        
+        .danger-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .danger-btn:hover {
+            background: #c82333;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .sample-form {
+            display: grid;
+            gap: 15px;
+            max-width: 400px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .interactive-area {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="status" id="status">准备就绪</div>
+    
+    <div class="container">
+        <h1>🎬 用户行为播放器演示</h1>
+        
+        <div class="info-box">
+            <strong>使用说明：</strong>
+            <ol>
+                <li>点击"开始录制"按钮开始收集用户行为数据</li>
+                <li>在页面上进行各种操作（移动鼠标、点击、滚动、输入等）</li>
+                <li>点击"停止录制"按钮结束数据收集</li>
+                <li>点击"播放录制"按钮观看行为回放动画</li>
+            </ol>
+        </div>
+        
+        <div class="controls">
+            <button id="startRecord" class="primary-btn">🔴 开始录制</button>
+            <button id="stopRecord" class="secondary-btn" disabled>⏹️ 停止录制</button>
+            <button id="playRecord" class="success-btn" disabled>▶️ 播放录制</button>
+            <button id="clearData" class="danger-btn">🗑️ 清除数据</button>
+        </div>
+        
+        <div class="demo-section">
+            <h3>📝 交互测试区域</h3>
+            <p>在这个区域进行各种操作来生成测试数据：</p>
+            
+            <div class="interactive-area">
+                <h4>表单测试</h4>
+                <form class="sample-form" id="testForm">
+                    <div class="form-group">
+                        <label for="username">用户名：</label>
+                        <input type="text" id="username" name="username" placeholder="请输入用户名">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">邮箱：</label>
+                        <input type="email" id="email" name="email" placeholder="请输入邮箱">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">分类：</label>
+                        <select id="category" name="category">
+                            <option value="">请选择</option>
+                            <option value="tech">技术</option>
+                            <option value="design">设计</option>
+                            <option value="marketing">营销</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">留言：</label>
+                        <textarea id="message" name="message" rows="4" placeholder="请输入您的留言"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="primary-btn">提交表单</button>
+                </form>
+            </div>
+            
+            <div class="interactive-area">
+                <h4>按钮测试</h4>
+                <div class="controls">
+                    <button class="primary-btn" onclick="showAlert('主要按钮')">主要按钮</button>
+                    <button class="secondary-btn" onclick="showAlert('次要按钮')">次要按钮</button>
+                    <button class="success-btn" onclick="showAlert('成功按钮')">成功按钮</button>
+                    <button class="danger-btn" onclick="showAlert('危险按钮')">危险按钮</button>
+                </div>
+            </div>
+            
+            <div class="interactive-area">
+                <h4>滚动测试</h4>
+                <p>向下滚动页面来测试滚动事件的记录和回放。</p>
+                <div style="height: 200px; overflow-y: scroll; border: 1px solid #ddd; padding: 10px;">
+                    <p>这是一个可滚动的区域。</p>
+                    <p>你可以在这里滚动鼠标滚轮。</p>
+                    <p>滚动行为会被记录下来。</p>
+                    <p>在播放时会重现滚动动作。</p>
+                    <p>继续滚动...</p>
+                    <p>更多内容...</p>
+                    <p>更多内容...</p>
+                    <p>更多内容...</p>
+                    <p>更多内容...</p>
+                    <p>更多内容...</p>
+                    <p>滚动到底部了！</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>📊 录制数据预览</h3>
+            <div id="dataPreview" class="info-box">
+                <p>暂无录制数据</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入用户行为追踪库 -->
+    <script src="../dist/userBehaviour.js"></script>
+    <!-- 引入播放器库 -->
+    <script src="../dist/userBehaviourPlayer.js"></script>
+    
+    <script>
+        // 全局变量
+        let isRecording = false;
+        let recordedData = null;
+        let currentPlayer = null;
+        
+        // DOM 元素引用
+        const startBtn = document.getElementById('startRecord');
+        const stopBtn = document.getElementById('stopRecord');
+        const playBtn = document.getElementById('playRecord');
+        const clearBtn = document.getElementById('clearData');
+        const status = document.getElementById('status');
+        const dataPreview = document.getElementById('dataPreview');
+        
+        // 更新状态显示
+        function updateStatus(message) {
+            status.textContent = message;
+        }
+        
+        // 更新按钮状态
+        function updateButtons() {
+            startBtn.disabled = isRecording;
+            stopBtn.disabled = !isRecording;
+            playBtn.disabled = !recordedData || isRecording;
+        }
+        
+        // 显示提示框
+        function showAlert(message) {
+            alert(`你点击了：${message}`);
+        }
+        
+        // 格式化数据预览
+        function formatDataPreview(data) {
+            if (!data) {
+                return '<p>暂无录制数据</p>';
+            }
+            
+            const stats = {
+                鼠标移动: data.mouseMovements?.length || 0,
+                点击次数: data.clicks?.clickCount || 0,
+                滚动次数: data.mouseScroll?.length || 0,
+                键盘活动: data.keyboardActivities?.length || 0,
+                窗口变化: data.windowSizes?.length || 0,
+                录制时长: data.time?.startTime && data.time?.stopTime ? 
+                    `${Math.round((new Date(data.time.stopTime).getTime() - new Date(data.time.startTime).getTime()) / 1000)}秒` : '未知'
+            };
+            
+            let html = '<h4>📈 录制统计</h4><ul>';
+            for (const [key, value] of Object.entries(stats)) {
+                html += `<li><strong>${key}:</strong> ${value}</li>`;
+            }
+            html += '</ul>';
+            
+            return html;
+        }
+        
+        // 开始录制
+        function startRecording() {
+            try {
+                // 配置用户行为追踪
+                window.userBehaviour.config({
+                    userInfo: true,
+                    clicks: true,
+                    mouseMovement: true,
+                    mouseMovementInterval: 0.1, // 更频繁的记录
+                    mouseScroll: true,
+                    timeCount: true,
+                    clearAfterProcess: false,
+                    processTime: 0, // 不自动处理
+                    windowResize: true,
+                    visibilitychange: true,
+                    keyboardActivity: true,
+                    pageNavigation: true,
+                    formInteractions: true,
+                    touchEvents: true,
+                    audioVideoInteraction: true,
+                    autoSendEvents: false
+                });
+                
+                // 开始追踪
+                window.userBehaviour.start();
+                
+                isRecording = true;
+                updateStatus('🔴 正在录制...');
+                updateButtons();
+                
+                console.log('开始录制用户行为');
+            } catch (error) {
+                console.error('启动录制失败:', error);
+                updateStatus('❌ 录制启动失败');
+            }
+        }
+        
+        // 停止录制
+        function stopRecording() {
+            try {
+                // 停止追踪并获取数据
+                window.userBehaviour.stop();
+                recordedData = window.userBehaviour.showResult();
+                
+                isRecording = false;
+                updateStatus('⏹️ 录制已停止');
+                updateButtons();
+                
+                // 更新数据预览
+                dataPreview.innerHTML = formatDataPreview(recordedData);
+                
+                console.log('录制数据:', recordedData);
+            } catch (error) {
+                console.error('停止录制失败:', error);
+                updateStatus('❌ 停止录制失败');
+            }
+        }
+        
+        // 播放录制
+        function playRecording() {
+            if (!recordedData) {
+                alert('没有可播放的录制数据');
+                return;
+            }
+            
+            try {
+                // 销毁之前的播放器
+                if (currentPlayer) {
+                    currentPlayer.destroy();
+                }
+                
+                // 创建新的播放器
+                currentPlayer = window.userBehaviourPlayer;
+                
+                // 配置播放器
+                currentPlayer.configure({
+                    playbackSpeed: 1.0,
+                    showMouseTrail: true,
+                    mouseTrailColor: '#ff4444',
+                    mouseTrailWidth: 3,
+                    showClickEffect: true,
+                    clickEffectColor: '#44ff44',
+                    clickEffectSize: 25,
+                    showScrollIndicator: true,
+                    showKeyboardInput: true,
+                    controlPanelPosition: 'bottom',
+                    autoPlay: true,
+                    loop: false
+                });
+                
+                // 加载并播放数据
+                currentPlayer.load(recordedData);
+                
+                updateStatus('▶️ 正在播放录制');
+                
+                console.log('开始播放录制数据');
+            } catch (error) {
+                console.error('播放失败:', error);
+                updateStatus('❌ 播放失败');
+                alert('播放失败: ' + error.message);
+            }
+        }
+        
+        // 清除数据
+        function clearData() {
+            if (confirm('确定要清除所有录制数据吗？')) {
+                recordedData = null;
+                dataPreview.innerHTML = '<p>暂无录制数据</p>';
+                updateStatus('🗑️ 数据已清除');
+                updateButtons();
+                
+                // 销毁播放器
+                if (currentPlayer) {
+                    currentPlayer.destroy();
+                    currentPlayer = null;
+                }
+            }
+        }
+        
+        // 绑定事件监听器
+        startBtn.addEventListener('click', startRecording);
+        stopBtn.addEventListener('click', stopRecording);
+        playBtn.addEventListener('click', playRecording);
+        clearBtn.addEventListener('click', clearData);
+        
+        // 表单提交处理
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('表单提交被拦截（用于演示）');
+        });
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('准备就绪');
+            updateButtons();
+            
+            // 检查库是否加载成功
+            if (typeof window.userBehaviour === 'undefined') {
+                updateStatus('❌ userBehaviour 库未加载');
+                console.error('userBehaviour 库未找到');
+            }
+            
+            if (typeof window.userBehaviourPlayer === 'undefined') {
+                updateStatus('❌ userBehaviourPlayer 库未加载');
+                console.error('userBehaviourPlayer 库未找到');
+            }
+        });
+        
+        // 窗口关闭前清理
+        window.addEventListener('beforeunload', function() {
+            if (currentPlayer) {
+                currentPlayer.destroy();
+            }
+        });
+    </script>
+</body>
+</html>

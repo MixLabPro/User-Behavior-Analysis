@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户行为分析 - 演示中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .demo-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .demo-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .demo-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .demo-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .features {
+            background: #e8f4f8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .features h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .features ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .features li {
+            color: #555;
+            padding: 5px 0;
+        }
+        
+        .features li::before {
+            content: "✅ ";
+            margin-right: 8px;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .version {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎯</div>
+        <h1>用户行为分析 <span class="version">v2.1.0</span></h1>
+        <p class="subtitle">全功能用户行为追踪、数据聚合与可视化回放解决方案</p>
+        
+        <div class="features">
+            <h3>🌟 核心功能</h3>
+            <ul>
+                <li>鼠标轨迹追踪</li>
+                <li>点击行为记录</li>
+                <li>键盘活动监控</li>
+                <li>滚动行为分析</li>
+                <li>表单交互追踪</li>
+                <li>触摸事件支持</li>
+                <li>媒体交互监控</li>
+                <li>页面导航记录</li>
+                <li>数据实时聚合</li>
+                <li>行为可视化回放</li>
+                <li>后端数据推送</li>
+                <li>TypeScript 支持</li>
+            </ul>
+        </div>
+        
+        <div class="demo-grid">
+            <a href="comprehensive-demo.html" class="demo-card">
+                <div class="demo-icon">🎮</div>
+                <div class="demo-title">综合演示</div>
+                <div class="demo-description">
+                    体验完整的用户行为分析生态系统，包括数据收集、聚合处理和可视化回放的全流程演示。
+                </div>
+            </a>
+            
+            <a href="demo.html" class="demo-card">
+                <div class="demo-icon">📊</div>
+                <div class="demo-title">基础追踪演示</div>
+                <div class="demo-description">
+                    专注于用户行为数据收集功能的演示，包括鼠标、键盘、表单等各种交互事件的实时追踪。
+                </div>
+            </a>
+            
+            <a href="player-demo.html" class="demo-card">
+                <div class="demo-icon">🎬</div>
+                <div class="demo-title">行为回放演示</div>
+                <div class="demo-description">
+                    展示用户行为数据的可视化回放功能，支持鼠标轨迹动画、点击效果和播放控制。
+                </div>
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p><strong>技术栈：</strong> TypeScript + esbuild + 原生 JavaScript</p>
+            <p><strong>支持环境：</strong> 现代浏览器 (Chrome, Firefox, Safari, Edge)</p>
+            <p><strong>模块化设计：</strong> 核心追踪 + 数据聚合 + 行为播放器</p>
+        </div>
+    </div>
+</body>
+</html>

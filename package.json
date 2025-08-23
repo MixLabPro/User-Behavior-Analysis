@@ -1,6 +1,6 @@
 {
     "name": "user-behavior-analysis",
-    "version": "2.0.2",
+    "version": "2.1.0",
     "description": "一个用于追踪和记录用户在网页上各种交互行为的 TypeScript 库",
     "main": "dist/userBehaviour.js",
     "types": "dist/userBehaviour.d.ts",
@@ -10,17 +10,34 @@
             "import": "./dist/userBehaviour.js",
             "require": "./dist/userBehaviour.js",
             "types": "./dist/userBehaviour.d.ts"
+        },
+        "./aggregator": {
+            "import": "./dist/aggregateUserBehaviorData.js",
+            "require": "./dist/aggregateUserBehaviorData.js",
+            "types": "./dist/aggregateUserBehaviorData.d.ts"
+        },
+        "./player": {
+            "import": "./dist/userBehaviourPlayer.js",
+            "require": "./dist/userBehaviourPlayer.js",
+            "types": "./dist/userBehaviourPlayer.d.ts"
         }
     },
     "files": [
         "dist/",
         "userBehaviour.ts",
+        "aggregateUserBehaviorData.ts",
+        "userBehaviourPlayer.ts",
         "README.md",
         "DOCUMENTATION.md",
+        "PLAYER_README.md",
         "LICENSE"
     ],
     "scripts": {
-        "build": "esbuild userBehaviour.ts --bundle --outfile=dist/userBehaviour.js --format=cjs && tsc userBehaviour.ts --declaration --emitDeclarationOnly --outDir dist",
+        "build": "npm run build:main && npm run build:aggregator && npm run build:player && npm run build:types",
+        "build:main": "esbuild userBehaviour.ts --bundle --outfile=dist/userBehaviour.js --format=cjs",
+        "build:aggregator": "esbuild aggregateUserBehaviorData.ts --bundle --outfile=dist/aggregateUserBehaviorData.js --format=cjs",
+        "build:player": "esbuild userBehaviourPlayer.ts --bundle --outfile=dist/userBehaviourPlayer.js --format=cjs",
+        "build:types": "tsc userBehaviour.ts aggregateUserBehaviorData.ts userBehaviourPlayer.ts --declaration --emitDeclarationOnly --outDir dist",
         "build:watch": "tsc --watch",
         "clean": "rimraf dist",
         "prebuild": "npm run clean",
@@ -34,7 +51,6 @@
         "postpack": "npm run clean",
         "test:server": "node demo/test-server.js",
         "test:all": "node demo/start-demo.js",
-        "test:status": "node demo/check-status.js",
         "demo": "open demo/demo.html",
         "start": "node demo/start-demo.js",
         "nextjs:dev": "cd nextjs && npm run dev",
