@@ -1,14 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { trackCache } from '@/lib/cache';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
+    // 获取用户代理和IP信息
+    const userAgent = request.headers.get('user-agent') || undefined;
+    const ip = request.headers.get('x-forwarded-for') || 
+               request.headers.get('x-real-ip') || 
+               request.ip || 
+               undefined;
+    
+    // 将记录添加到缓存
+    trackCache.addRecord(body, userAgent, ip);
+    
     // 记录接收到的用户行为数据
     console.log('收到用户行为数据:', JSON.stringify(body, null, 2));
-    
-    // 这里可以添加数据持久化逻辑
-    // 例如保存到数据库、发送到分析服务等
+    console.log(`当前缓存记录数: ${trackCache.getRecordCount()}`);
     
     // 模拟数据处理延迟
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -39,6 +48,9 @@ export async function GET() {
   return NextResponse.json({
     message: '用户行为追踪API',
     status: 'running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    cacheInfo: {
+      recordCount: trackCache.getRecordCount()
+    }
   });
 }
